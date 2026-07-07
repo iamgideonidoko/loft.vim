@@ -1,0 +1,124 @@
+*loft.txt*  Native Vim popup buffer manager
+
+==============================================================================
+CONTENTS                                                     *loft-contents*
+
+1. Introduction.............................................|loft-intro|
+2. Setup....................................................|loft-setup|
+3. Commands.................................................|loft-commands|
+4. Mappings.................................................|loft-mappings|
+5. API......................................................|loft-api|
+6. Events...................................................|loft-events|
+7. Compatibility............................................|loft-compat|
+
+==============================================================================
+1. Introduction                                               *loft-intro*
+
+loft.vim ports loft.nvim to native Vim 9 popup windows.  It keeps a registry
+of listed buffers, supports smart recency ordering, marked buffers, cyclic
+navigation, popup selection UI, and session persistence.
+
+==============================================================================
+2. Setup                                                       *loft-setup*
+
+The plugin auto-initializes on startup with |g:loft_config| when present.
+You can also call: >
+	call loft#Setup({})
+<
+
+==============================================================================
+3. Commands                                                 *loft-commands*
+
+	:LoftToggle
+	:LoftToggleSmartOrder
+	:LoftToggleMark
+	:LoftCloseOthers[!]
+	:LoftCloseUnmarked[!]
+
+==============================================================================
+4. Mappings                                                 *loft-mappings*
+
+Default global mappings: >
+	<leader>lf
+	<Tab>
+	<S-Tab>
+	<leader>x
+	<leader>X
+	<leader>ln
+	<leader>lp
+	<leader>lm
+	<leader>ls
+	<leader>la
+	<S-M-i>
+	<S-M-o>
+<
+
+Inside Loft popup:
+	j / k                  move cursor
+	<C-j> / <C-k>          move entry
+	dd / D                 delete / force-delete
+	m                       toggle mark
+	<CR>                    select
+	?                       help
+	<M-j> / <M-k>          jump marked entries
+	q / <Esc>              close
+	v / V, then d / D      range delete
+
+==============================================================================
+5. API                                                           *loft-api*
+
+Top-level:
+	call loft#Setup({opts})
+
+Statusline helpers:
+	call loft#ui#GetBufferMark()
+	call loft#ui#SmartOrderIndicator()
+
+Actions:
+	call loft#actions#OpenLoft()
+	call loft#actions#CloseBuffer({})
+	call loft#actions#SwitchToNextBuffer()
+	call loft#actions#SwitchToPrevBuffer()
+	call loft#actions#SwitchToNextMarkedBuffer()
+	call loft#actions#SwitchToPrevMarkedBuffer()
+	call loft#actions#ToggleMarkCurrentBuffer({})
+	call loft#actions#ToggleSmartOrder({})
+	call loft#actions#SwitchToAltBuffer()
+	call loft#actions#MoveBufferUp()
+	call loft#actions#MoveBufferDown()
+	call loft#actions#CloseOthers({})
+	call loft#actions#CloseUnmarked({})
+
+Registry:
+	call loft#registry#GetRegistry()
+	call loft#registry#Clean()
+	call loft#registry#ToggleMarkBuffer(bufnr('%'))
+	call loft#registry#IsBufferMarked(bufnr('%'))
+
+Persistence:
+	call loft#persistence#Save()
+	call loft#persistence#Restore()
+
+==============================================================================
+6. Events                                                     *loft-events*
+
+Loft fires these |User| events:
+
+	User LoftBufferMark
+	User LoftSmartOrderToggle
+	User LoftRegistryChanged
+	User LoftBufferSwitch
+
+Vim does not expose `ev.data` for `:doautocmd User`.  Loft stores payload in
+`g:loft_last_event.data`.
+
+==============================================================================
+7. Compatibility                                             *loft-compat*
+
+- Public API uses Vim9 exported autoload names, so functions start with a
+  capital letter: `loft#Setup()`, `loft#ui#GetBufferMark()`, etc.
+- Popup footer is not available in Vim; smart-order state is shown in title.
+- Popup multi-delete uses range mode (`v`/`V`, then `d`/`D`).
+- Config callback mappings from Neovim version are not supported.
+
+vim:tw=78:ts=8:noet:ft=help:norl:
